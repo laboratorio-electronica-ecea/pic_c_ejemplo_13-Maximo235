@@ -1,6 +1,6 @@
 /*
  * Nombre del archivo:   main.c
- * Autor:
+ * Autor:Maximo Aguero
  *
  * Descripción: 
  *      Configura la UART para trabajar a 9600 bps con 8 bits de datos y 1 bit 
@@ -65,12 +65,14 @@
 /* ------------------------ Prototipos de funciones ------------------------- */
 void gpio_config();
 void uart_config();
+void uart_tx_byte( uint8_t dato );
+uint8_t uart_rx_byte( uint8_t *dato );
 // TODO: Prototipo de una función que permita transmitir un byte (uartWriteByte)
 // TODO: Prototipo de una función que permita recibir un byte (uartReadByte)
 
 /* ------------------------ Implementación de funciones --------------------- */
 void main(void) {                       // Función principal
-    uint8_t dato_recibido;              // Variable donde se almacenan datos
+    uint8_t dato_recibido, resultado;              // Variable donde se almacenan datos
 
     gpio_config();                      // Inicializo las entradas y salidas
     uart_config();                      // Configuro la UART
@@ -79,6 +81,19 @@ void main(void) {                       // Función principal
         // Ver este link: https://pbs.twimg.com/media/BafQje7CcAAN5en.jpg
         
         // TODO: Completar la encuesta por las teclas
+        
+        resultado = uart_rx_byte( &dato_recibido );
+        
+        if( resultado == 1){
+            if( dato_recibido == '1' )
+                PIN_LED1 = !PIN_LED1;
+            else if( dato_recibido == '2' )
+                PIN_LED2 = !PIN_LED2;
+            else if( dato_recibido == '3' )
+                PIN_LED3 = !PIN_LED3;
+            else if( dato_recibido == '4' )
+                PIN_LED4 = !PIN_LED4;
+        }
     }
     
     // NO DEBE LLEGAR NUNCA AQUÍ, debido a que este programa se ejecuta
@@ -95,14 +110,34 @@ void gpio_config() {
 void uart_config() {
     // TODO: Configura la UART para trabajar a 9600 bps con 8 bits de datos
     // y 1 bit de stop
+    
+    TXSTAbits.TX9 = 0;          // Transmision de 8 bits
+    TXSTAbits.TXEN = 1;         // Transmision habilitacion
+    TXSTAbits.SYNC = 0;         // Modo asincronico
+    
+    TXSTAbits.BRGH = 0;          
+    BAUDCTLbits.BRG16 = 1;
+    SPBRG = 25;                 // Baudrate de 9600
+    
+    RCSTAbits.SPEN = 1;         // Puerto serie habilitado
+    RCSTAbits.RX9 = 0;          // Recepcion de 8 bits
+    RCSTAbits.CREN = 1;         // Recepcion habilitada
 }
 
 void uart_tx_byte( uint8_t dato ) {
     // TODO: Implementa una función que permita transmitir un byte (uartWriteByte)
+    while( PIR1bits.TXIF == 0 );        // Espero
+    TXREG = dato;
 }
 
 uint8_t uart_rx_byte( uint8_t *dato ) {
     // TODO: Implementa una función que permita recibir un byte (uartReadByte)
+    if( PIR1bits.RCIF == 1 ) {
+    
+        return 1;
+    } else {
+        return 0;
+    }  
 }
 
 /* ------------------------ Fin de archivo ---------------------------------- */
