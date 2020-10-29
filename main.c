@@ -94,6 +94,28 @@ void main(void) {                       // Función principal
             else if( dato_recibido == '4' )
                 PIN_LED4 = !PIN_LED4;
         }
+        
+        
+        
+        if( PIN_TEC1 == 0 ) {                                   // Espero que se presione la TEC1
+            __delay_ms(40);                                     // Delay antirrebote
+            
+            
+            
+            while( PIN_TEC1 == 0 );                             // Espero a que se suelte la tecla
+            __delay_ms(40);                                     // Delay antirrebote
+        }
+        
+        
+        if( PIN_TEC2 == 0 ) {                                   // Espero que se presione la TEC2
+            __delay_ms(40);                                     // Delay antirrebote
+            
+                        
+
+            while( PIN_TEC2 == 0 );                             // Espero a que se suelte la tecla
+            __delay_ms(40);                                     // Delay antirrebote
+        }
+        
     }
     
     // NO DEBE LLEGAR NUNCA AQUÍ, debido a que este programa se ejecuta
@@ -105,6 +127,17 @@ void main(void) {                       // Función principal
 
 void gpio_config() {    
     // TODO: Completar la inicialización de los pines
+    ANSEL = 0;                  // Configuro todas las entradas
+    ANSELH = 0;                 //   como digitales
+    
+    TRIS_LED1 = 0;              // Configuro el LED1 como salida
+    TRIS_LED2 = 0;              // Configuro el LED2 como salida
+    TRIS_LED3 = 0;              // Configuro el LED3 como salida
+    TRIS_LED4 = 0;              // Configuro el LED4 como salida
+    
+    TRIS_TEC1 = 1;              // Configuro la TEC1 como entrada
+    TRIS_TEC2 = 1;              // Configuro la TEC2 como entrada
+    
 }
 
 void uart_config() {
