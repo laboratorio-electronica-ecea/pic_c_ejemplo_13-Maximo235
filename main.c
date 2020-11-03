@@ -1,6 +1,6 @@
 /*
  * Nombre del archivo:   main.c
- * Autor:Maximo Aguero
+ * Autor: Maximo Aguero
  *
  * Descripción: 
  *      Configura la UART para trabajar a 9600 bps con 8 bits de datos y 1 bit 
@@ -67,12 +67,10 @@ void gpio_config();
 void uart_config();
 void uart_tx_byte( uint8_t dato );
 uint8_t uart_rx_byte( uint8_t *dato );
-// TODO: Prototipo de una función que permita transmitir un byte (uartWriteByte)
-// TODO: Prototipo de una función que permita recibir un byte (uartReadByte)
 
 /* ------------------------ Implementación de funciones --------------------- */
 void main(void) {                       // Función principal
-    uint8_t dato_recibido, resultado;              // Variable donde se almacenan datos
+    uint8_t dato_recibido, resultado;   // Variable donde se almacenan datos
 
     gpio_config();                      // Inicializo las entradas y salidas
     uart_config();                      // Configuro la UART
@@ -80,7 +78,27 @@ void main(void) {                       // Función principal
     while(1) {                          // Super loop
         // Ver este link: https://pbs.twimg.com/media/BafQje7CcAAN5en.jpg
         
-        // TODO: Completar la encuesta por las teclas
+
+        if( PIN_TEC1 == 0 ) {                                   // Espero que se presione la TEC1
+            __delay_ms(40);                                     // Delay antirrebote
+            
+            uart_tx_byte('U');
+            
+            while( PIN_TEC1 == 0 );                             // Espero a que se suelte la tecla
+            __delay_ms(40);                                     // Delay antirrebote
+        }
+        
+        
+        if( PIN_TEC2 == 0 ) {                                   // Espero que se presione la TEC2
+            __delay_ms(40);                                     // Delay antirrebote
+            
+            uart_tx_byte('D');
+
+            while( PIN_TEC2 == 0 );                             // Espero a que se suelte la tecla
+            __delay_ms(40);                                     // Delay antirrebote
+        }
+        
+        
         
         resultado = uart_rx_byte( &dato_recibido );
         
@@ -95,27 +113,6 @@ void main(void) {                       // Función principal
                 PIN_LED4 = !PIN_LED4;
         }
         
-        
-        
-        if( PIN_TEC1 == 0 ) {                                   // Espero que se presione la TEC1
-            __delay_ms(40);                                     // Delay antirrebote
-            
-            
-            
-            while( PIN_TEC1 == 0 );                             // Espero a que se suelte la tecla
-            __delay_ms(40);                                     // Delay antirrebote
-        }
-        
-        
-        if( PIN_TEC2 == 0 ) {                                   // Espero que se presione la TEC2
-            __delay_ms(40);                                     // Delay antirrebote
-            
-                        
-
-            while( PIN_TEC2 == 0 );                             // Espero a que se suelte la tecla
-            __delay_ms(40);                                     // Delay antirrebote
-        }
-        
     }
     
     // NO DEBE LLEGAR NUNCA AQUÍ, debido a que este programa se ejecuta
@@ -126,7 +123,6 @@ void main(void) {                       // Función principal
 }
 
 void gpio_config() {    
-    // TODO: Completar la inicialización de los pines
     ANSEL = 0;                  // Configuro todas las entradas
     ANSELH = 0;                 //   como digitales
     
@@ -141,8 +137,6 @@ void gpio_config() {
 }
 
 void uart_config() {
-    // TODO: Configura la UART para trabajar a 9600 bps con 8 bits de datos
-    // y 1 bit de stop
     
     TXSTAbits.TX9 = 0;          // Transmision de 8 bits
     TXSTAbits.TXEN = 1;         // Transmision habilitacion
@@ -158,15 +152,13 @@ void uart_config() {
 }
 
 void uart_tx_byte( uint8_t dato ) {
-    // TODO: Implementa una función que permita transmitir un byte (uartWriteByte)
     while( PIR1bits.TXIF == 0 );        // Espero
     TXREG = dato;
 }
 
 uint8_t uart_rx_byte( uint8_t *dato ) {
-    // TODO: Implementa una función que permita recibir un byte (uartReadByte)
     if( PIR1bits.RCIF == 1 ) {
-    
+        *dato = RCREG;
         return 1;
     } else {
         return 0;
